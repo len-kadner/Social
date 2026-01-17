@@ -30,7 +30,7 @@ if ($_POST) {
             <input name="username" placeholder="Username" required>
             <input name="password" type="password" placeholder="Password" required>
             <button>Login</button>
-            <p>Don't have an account? <a href="register.php">Register here</a></p>
+            <p>Don't have an Account? <a href="register.php">Register here</a></p>
         </form>
     </div>
 </body>
