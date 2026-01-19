@@ -140,7 +140,7 @@ form {
     margin-top: 15px;
 }
 
-.like-btn, .comment-btn {
+.like-btn, .comment-btn, .delete-btn {
     background: none;
     border: none;
     color: #666666;
@@ -151,7 +151,7 @@ form {
     transition: background-color 0.3s;
 }
 
-.like-btn:hover, .comment-btn:hover {
+.like-btn:hover, .comment-btn:hover, .delete-btn:hover {
     background-color: #f0f0f0;
 }
 

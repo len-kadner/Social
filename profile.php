@@ -15,6 +15,51 @@ if (isset($_POST["follow"])) {
     header("Location: profile.php?id=$profileId");
     exit;
 }
+
+if (isset($_POST["email"])) {
+    if (!verifyCSRFToken($_POST['csrf_token'])) {
+        die('CSRF token mismatch');
+    }
+    $newEmail = trim($_POST["email"]);
+    $db->prepare("INSERT OR REPLACE INTO emails (id, email) VALUES (?, ?)")->execute([$profileId, $newEmail]);
+    header("Location: profile.php?id=$profileId");
+    exit;
+}
+
+if (isset($_POST["delete_post"])) {
+    if (!verifyCSRFToken($_POST['csrf_token'])) {
+        die('CSRF token mismatch');
+    }
+    $postId = $_POST["delete_post"];
+    $stmt = $db->prepare("SELECT user_id FROM posts WHERE id = ?");
+    $stmt->execute([$postId]);
+    $post = $stmt->fetch();
+    if ($post && $post["user_id"] == $_SESSION["user_id"]) {
+        $db->prepare("DELETE FROM posts WHERE id = ?")->execute([$postId]);
+        $db->prepare("DELETE FROM comments WHERE post_id = ?")->execute([$postId]);
+        $db->prepare("DELETE FROM likes WHERE post_id = ?")->execute([$postId]);
+    }
+    header("Location: profile.php?id=$profileId");
+    exit;
+}
+
+if (isset($_POST["delete_account"])) {
+    if (!verifyCSRFToken($_POST['csrf_token'])) {
+        die('CSRF token mismatch');
+    }
+    $userId = $_SESSION["user_id"];
+    // Delete all user data
+    $db->prepare("DELETE FROM posts WHERE user_id = ?")->execute([$userId]);
+    $db->prepare("DELETE FROM comments WHERE user_id = ?")->execute([$userId]);
+    $db->prepare("DELETE FROM likes WHERE user_id = ?")->execute([$userId]);
+    $db->prepare("DELETE FROM follows WHERE follower_id = ? OR following_id = ?")->execute([$userId, $userId]);
+    $db->prepare("DELETE FROM messages WHERE sender_id = ? OR receiver_id = ?")->execute([$userId, $userId]);
+    $db->prepare("DELETE FROM emails WHERE id = ?")->execute([$userId]);
+    $db->prepare("DELETE FROM users WHERE id = ?")->execute([$userId]);
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
 $email = $db->prepare("SELECT email FROM emails WHERE id=?");
 $email->execute([$profileId]);
 $email = $email->fetch();
@@ -73,6 +118,15 @@ $result = $stmt->fetch();
             </div>
         </div>
 
+        <?php if ($profileId == $_SESSION["user_id"] && !$email): ?>
+        <form method="post" style="text-align: center; margin-bottom: 20px;">
+            <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
+            <label for="email" style="display: block; margin-bottom: 10px;">E-Mail-Adresse hinzufügen:</label>
+            <input type="email" name="email" id="email" required style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 5px;">
+            <button type="submit" style="padding: 8px 16px; background-color: #000000; color: #ffffff; border: none; border-radius: 5px; cursor: pointer;">Speichern</button>
+        </form>
+        <?php endif; ?>
+
         <?php if ($profileId != $_SESSION["user_id"]): ?>
         <form method="post" style="text-align: center;">
             <button name="follow" class="follow-btn"><?=$isFollowing ? 'Unfollow' : 'Follow'?></button>
@@ -109,9 +163,13 @@ $result = $stmt->fetch();
                 </button>
                 <span class="like-count">(<?=$likeCount?>)</span>
                 <button class="comment-btn" onclick="toggleComments(<?=$postId?>)">Comment</button>
+                <?php if ($profileId == $_SESSION["user_id"]): ?>
+                <button type="button" onclick="deletePost(<?=$postId?>)" class="delete-btn">Delete</button>
+                <?php endif; ?>
             </div>
             <div id="comments-<?=$postId?>" style="display: none;">
                 <form method="post" class="comment-form" action="index.php">
+                    <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
                     <input name="comment" placeholder="Write a comment..." required>
                     <input type="hidden" name="post_id" value="<?=$postId?>">
                     <button>Comment</button>
@@ -125,6 +183,13 @@ $result = $stmt->fetch();
             </div>
         </div>
         <?php endforeach; ?>
+
+        <?php if ($profileId == $_SESSION["user_id"]): ?>
+        <form method="post" style="text-align: center; margin-top: 30px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
+            <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
+            <button type="button" onclick="deleteAccount()" style="padding: 10px 20px; background-color: #ff0000; color: #ffffff; border: none; border-radius: 5px; cursor: pointer;">Delete Account</button>
+        </form>
+        <?php endif; ?>
 
         <a href="index.php" class="back-link">Back to Home</a>
     </div>
@@ -157,6 +222,34 @@ $result = $stmt->fetch();
                 }
             })
             .catch(error => console.error('Error:', error));
+        }
+
+        function deletePost(postId) {
+            if (confirm('Are you sure you want to delete this post?')) {
+                const formData = new FormData();
+                formData.append('delete_post', postId);
+                formData.append('csrf_token', '<?=generateCSRFToken()?>');
+
+                fetch('profile.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(() => location.reload());
+            }
+        }
+
+        function deleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                const formData = new FormData();
+                formData.append('delete_account', '1');
+                formData.append('csrf_token', '<?=generateCSRFToken()?>');
+
+                fetch('profile.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(() => window.location.href = 'login.php');
+            }
         }
     </script>
 </body>
