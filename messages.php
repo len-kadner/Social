@@ -11,15 +11,13 @@ if ($_POST["message"] ?? false) {
     $receiver = trim($_POST["receiver"]);
     $content = trim($_POST["message"]);
 
-    // Get receiver ID
-    $stmt = $db->prepare("SELECT id FROM users WHERE username = ?");
-    $stmt->execute([$receiver]);
-    $rec = $stmt->fetch();
+    // Receiver is already the ID
+    $rec = ['id' => $receiver];
     if ($rec) {
         $stmt = $db->prepare("INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)");
         $stmt->execute([$userId, $rec["id"], $content]);
     }
-    header("Location: messages.php");
+    header("Location: messages.php?user=" . $_POST["receiver"]);
     exit;
 }
 
@@ -108,6 +106,7 @@ if ($selectedUser) {
                     <?php foreach ($messages as $msg): ?>
                     <div class="message <?=$msg["sender_id"] == $userId ? 'sent' : 'received'?>">
                         <strong>@<?=htmlspecialchars($msg["sender_name"])?>:</strong> <?=htmlspecialchars($msg["content"])?>
+                        <small class="message-time"><?=date('H:i d.m.Y', strtotime($msg["created_at"]))?></small>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -115,7 +114,7 @@ if ($selectedUser) {
                     <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
                     <input type="hidden" name="receiver" value="<?=$selectedUser?>">
                     <input name="message" placeholder="Type a message..." required>
-                    <button>Send</button>
+                    <button name="send-btn">Send</button>
                 </form>
                 <?php else: ?>
                 <p>Select a conversation to start chatting.</p>

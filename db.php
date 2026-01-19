@@ -9,6 +9,11 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT
 );
 
+CREATE TABLE IF NOT EXISTS emails (
+    id INTEGER PRIMARY KEY,
+    email TEXT
+);
+
 CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,

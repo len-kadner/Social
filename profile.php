@@ -15,6 +15,9 @@ if (isset($_POST["follow"])) {
     header("Location: profile.php?id=$profileId");
     exit;
 }
+$email = $db->prepare("SELECT email FROM emails WHERE id=?");
+$email->execute([$profileId]);
+$email = $email->fetch();
 
 $user = $db->prepare("SELECT username FROM users WHERE id=?");
 $user->execute([$profileId]);
@@ -65,7 +68,8 @@ $result = $stmt->fetch();
         <div class="profile-header">
             <h2>@<?=$user["username"]?></h2>
             <div style="margin-top: 10px; color: #666666;">
-                <span>Followers: <?=$followerCount?></span> | <span>Following: <?=$followingCount?></span>
+                <span>Followers: <?=$followerCount?></span> | <span>Following: <?=$followingCount?></span> |
+                <span>Contact: <?=$email ? htmlspecialchars($email["email"]) : "No email set"?></span>
             </div>
         </div>
 
@@ -95,6 +99,7 @@ $result = $stmt->fetch();
         ");
         $comments->execute([$postId]);
         ?>
+
         <div class="post">
             <div class="username">@<?=htmlspecialchars($user["username"])?></div>
             <div class="content"><?=htmlspecialchars($p["content"])?></div>
