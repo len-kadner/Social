@@ -37,6 +37,12 @@ if ($profileId != $_SESSION["user_id"]) {
 
 $posts = $db->prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC");
 $posts->execute([$profileId]);
+
+/*
+$stmt = $db->prepare("SQL MIT ?");
+$stmt->execute([$wert]);
+$result = $stmt->fetch();
+*/
 ?>
 
 <!DOCTYPE html>
