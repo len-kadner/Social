@@ -62,9 +62,12 @@ $posts->execute([$userId, $userId]);
         <header>
             <h1>Social</h1>
             <nav class="nav-links">
-                <a href="profile.php">My Profile</a>
-                <a href="search.php">Search</a>
-                <a href="messages.php">Messages</a>
+                <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+                <?php if ($currentPage != 'index.php') echo '<a href="index.php">Home</a>'; ?>
+                <?php if ($currentPage != 'trending.php') echo '<a href="trending.php">Trending</a>'; ?>
+                <?php if ($currentPage != 'search.php') echo '<a href="search.php">Search</a>'; ?>
+                <?php if ($currentPage != 'messages.php') echo '<a href="messages.php">Messages</a>'; ?>
+                <?php if ($currentPage != 'profile.php') echo '<a href="profile.php">My Profile</a>'; ?>
                 <a href="logout.php">Logout</a>
             </nav>
         </header>
