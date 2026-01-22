@@ -66,7 +66,7 @@ $posts->execute([$userId, $userId]);
 
         <form method="post" class="post-form">
             <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
-            <input type="hidden" name="date" value="<?=date('H:i d.m.Y', strtotime($msg["created_at"]))?>">
+            <input type="hidden" name="timestamp" value="<?php echo time(); ?>">
             <input name="post" placeholder="What's happening?" required>
             <button>Post</button>
         </form>
@@ -93,13 +93,13 @@ $posts->execute([$userId, $userId]);
         <div class="post">
             <div class="username">@<?=htmlspecialchars($p["username"])?></div>
             <div class="content"><?=htmlspecialchars($p["content"])?></div>
-            <!-- <div class="date"><?php echo $_Post["date"]?></div> -->
             <div class="post-actions">
                 <button type="button" onclick="likePost(<?=$postId?>, this)" class="like-btn <?=$isLiked ? 'liked' : ''?>">
                     Like
                 </button>
                 <span class="like-count">(<?=$likeCount?>)</span>
                 <button class="comment-btn" onclick="toggleComments(<?=$postId?>)">Comment</button>
+                <div class="date"><?=htmlspecialchars(date('Y-m-d H:i:s', strtotime($p["created_at"])))?></div>
             </div>
             <div id="comments-<?=$postId?>" style="display: none;">
                 <form method="post" class="comment-form">
@@ -112,6 +112,7 @@ $posts->execute([$userId, $userId]);
                 <div class="comment">
                     <div class="username">@<?=htmlspecialchars($c["username"])?></div>
                     <div class="content"><?=htmlspecialchars($c["content"])?></div>
+                    <small class="timestamp"><?=htmlspecialchars(date('Y-m-d H:i:s', strtotime($c["created_at"])))?></small>
                 </div>
                 <?php endforeach; ?>
             </div>
