@@ -37,9 +37,9 @@ if ($_POST["comment"] ?? false) {
     $postOwner = $db->prepare("SELECT user_id FROM posts WHERE id = ?");
     $postOwner->execute([$_POST["post_id"]]);
     $owner = $postOwner->fetch();
-    if ($owner && $owner["user_id"] != $userId) {
-        $db->prepare("INSERT INTO notifications (user_id, type, from_user_id, post_id) VALUES (?, 'comment', ?, ?)")->execute([$owner["user_id"], $userId, $_POST["post_id"]]);
-    }
+    //if ($owner && $owner["user_id"] != $userId) {
+      //  $db->prepare("INSERT INTO notifications (user_id, type, from_user_id, post_id) VALUES (?, 'comment', ?, ?)")->execute([$owner["user_id"], $userId, $_POST["post_id"]]);
+   // }
     header("Location: trending.php");
     exit;
 }

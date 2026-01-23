@@ -26,6 +26,16 @@ if (isset($_POST["email"])) {
     exit;
 }
 
+if (isset($_POST["bio_content"])) {
+    if (!verifyCSRFToken($_POST['csrf_token'])) {
+        die('CSRF token mismatch');
+    }
+    $newBio = trim($_POST["bio_content"]);
+    $db->prepare("INSERT OR REPLACE INTO bio_content (id, bio_content) VALUES (?, ?)")->execute([$profileId, $newBio]);
+    header("Location: profile.php?id=$profileId");
+    exit;
+}
+
 if (isset($_POST["delete_post"])) {
     if (!verifyCSRFToken($_POST['csrf_token'])) {
         die('CSRF token mismatch');
@@ -39,6 +49,15 @@ if (isset($_POST["delete_post"])) {
         $db->prepare("DELETE FROM comments WHERE post_id = ?")->execute([$postId]);
         $db->prepare("DELETE FROM likes WHERE post_id = ?")->execute([$postId]);
     }
+    header("Location: profile.php?id=$profileId");
+    exit;
+}
+
+if (isset($_POST["delete_bio"])) {
+    if (!verifyCSRFToken($_POST["csrf_token"])) {
+        die("CSRF token mismatch");
+    }
+    $db->prepare("DELETE FROM bio_content WHERE id = ?")->execute([$profileId]);
     header("Location: profile.php?id=$profileId");
     exit;
 }
@@ -63,6 +82,10 @@ if (isset($_POST["delete_account"])) {
 $email = $db->prepare("SELECT email FROM emails WHERE id=?");
 $email->execute([$profileId]);
 $email = $email->fetch();
+
+$bio_content = $db->prepare("SELECT bio_content FROM bio_content WHERE id=?");
+$bio_content->execute([$profileId]);
+$bio_content = $bio_content->fetch();
 
 $user = $db->prepare("SELECT username FROM users WHERE id=?");
 $user->execute([$profileId]);
@@ -114,6 +137,7 @@ $result = $stmt->fetch();
                 <span>Followers: <?=$followerCount?></span> | <span>Following: <?=$followingCount?></span> |
                 <span>Contact: <?=$email ? htmlspecialchars($email["email"]) : "No email set"?></span>
             </div>
+            <span style="margin-top: 10px; color: #1f1f1f;"><?=$bio_content ? htmlspecialchars($bio_content["bio_content"]) : "No Bio set"?></span>
         </div>
 
         <?php if ($profileId == $_SESSION["user_id"] && !$email): ?>
@@ -124,7 +148,15 @@ $result = $stmt->fetch();
             <button type="submit" style="padding: 8px 16px; background-color: #000000; color: #ffffff; border: none; border-radius: 5px; cursor: pointer;">Speichern</button>
         </form>
         <?php endif; ?>
-
+        
+        <?php if ($profileId == $_SESSION["user_id"] && !$bio_content): ?>
+        <form name="bio" method="post" style="text-align: center; margin-bottom: 20px;">
+            <h4>Add Your Bio!</h4>
+            <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
+            <input type="text" name="bio_content" id="bio-content" requiered style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 5px;">
+            <button type="submit" name="submit_bio" style="padding: 8px 16px; background-color: #000000; color: #ffffff; border: none; border-radius: 5px; cursor: pointer;">Speichern</button>
+        </form>
+        <?php endif; ?>
 
         <?php if ($profileId != $_SESSION["user_id"]): ?>
         <form method="post" style="text-align: center;">
@@ -186,6 +218,7 @@ $result = $stmt->fetch();
         <?php if ($profileId == $_SESSION["user_id"]): ?>
         <form method="post" style="text-align: center; margin-top: 30px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
             <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
+            <button type="button" onclick="deleteBio()" style="padding: 10px 20px; background-color: #ff0000; color: #ffffff; border: none; border-radius: 5px; cursor: pointer;">Delete Bio</button>
             <button type="button" onclick="deleteAccount()" style="padding: 10px 20px; background-color: #ff0000; color: #ffffff; border: none; border-radius: 5px; cursor: pointer;">Delete Account</button>
         </form>
         <?php endif; ?>
@@ -248,6 +281,19 @@ $result = $stmt->fetch();
                     body: formData
                 })
                 .then(() => window.location.href = 'login.php');
+            }
+        }
+
+        function deleteBio() {
+            if (confirm('Are you sure you want to delete your Bio? This action cannot be undone.')) {
+                const formData = new FormData();
+                formData.append('delete_bio', '1');
+                formData.append('csrf_token', '<?=generateCSRFToken()?>');
+
+                fetch('profile.php', {
+                    method: 'POST',
+                    body: formData
+                })
             }
         }
     </script>

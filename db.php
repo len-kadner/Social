@@ -14,6 +14,11 @@ CREATE TABLE IF NOT EXISTS emails (
     email TEXT
 );
 
+CREATE TABLE IF NOT EXISTS bio_content (
+    id INTEGER PRIMARY KEY,
+    bio_content TEXT
+);
+
 CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
