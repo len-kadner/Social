@@ -125,6 +125,7 @@ $result = $stmt->fetch();
         </form>
         <?php endif; ?>
 
+
         <?php if ($profileId != $_SESSION["user_id"]): ?>
         <form method="post" style="text-align: center;">
             <button name="follow" class="follow-btn"><?=$isFollowing ? 'Unfollow' : 'Follow'?></button>
