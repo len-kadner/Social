@@ -68,7 +68,14 @@ $posts->execute([$userId, $userId]);
             <input type="hidden" name="csrf_token" value="<?=generateCSRFToken()?>">
             <input type="hidden" name="timestamp" value="<?php echo time(); ?>">
             <input name="post" placeholder="What's happening?" required>
+            <label for="fileUpload">
+                <img src="upload-icon.png" alt="Upload" width="30" height="30" id="upload_icon">
+            </label>
+
+            <!-- Verstecktes Datei-Upload-Feld -->
+            <input type="file" id="fileUpload" accept="image/*">
             <button>Post</button>
+            </div>
         </form>
 
         <?php foreach ($posts as $p): ?>

@@ -97,6 +97,7 @@ form {
     font-size: 16px;
     outline: none;
     background-color: #ffffff;
+    width: 80%;
 }
 
 .post-form input:focus {
@@ -508,7 +509,7 @@ form {
         flex: 1;
         text-align: center;
         padding: 10px 0;
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 1000;
     }
 
@@ -525,7 +526,7 @@ form {
     }
 
     .post-form input {
-        width: 85%;
+        width: 92%;
         font-size: 15px;
     }
 
@@ -619,6 +620,9 @@ form {
         margin-top: 10px;
         text-align: right;
     }
+    #upload_icon{
+        display:none;
+    }
 }
 .date {
     font-size: 0.6rem;
@@ -635,3 +639,24 @@ form {
 .message { margin: 10px 0; }
 .sent { text-align: right; }  /* Deine Nachrichten rechts */
 .received { text-align: left; }  /* Andere links */
+
+    input[type="file"] {
+        display: none;
+    }
+
+    /* Label als klickbarer Button */
+    label {
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    /* Optional: Hover-Effekt */
+    label:hover img {
+        opacity: 0.8;
+        transform: scale(1.05);
+        transition: 0.2s;
+    }
+
+#upload_icon{
+    margin-top: 25%;
+}
